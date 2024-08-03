@@ -6,10 +6,7 @@ import {
     getDocs,
     doc,
     deleteDoc,
-    updateDoc,
-    query,
-    where,
-    orderBy
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 
@@ -32,22 +29,6 @@ let form = document.querySelector("#form")
 let list = document.querySelector("#list")
 let input = document.querySelector("#todo")
 let select = document.querySelector("#select")
-let filterBtn = document.querySelectorAll(".filterBtn")
-
-filterBtn.forEach((btn, index) => {
-    btn.addEventListener('click', async () => {
-        addTodo= []
-        list.innerHTML = ''
-        const queries = collection(db, "todos");
-        const q = query(queries, where("cities", "==", btn.innerHTML));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            addTodo.push({ ...doc.data(), id: doc.id });
-        });
-        console.log(addTodo);
-        renderScreen()
-    })
-})
 
 // add todo in array
 let addTodo = []
