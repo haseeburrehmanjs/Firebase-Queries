@@ -37,29 +37,77 @@ let filterBtn = document.querySelectorAll(".filterBtn")
 // empty array for push data 
 let emptyArray = []
 
+// get data from firestore database
+async function getDataFromDb() {
+    const querySnapshot = await getDocs(collection(db, "todos"));
+    querySnapshot.forEach((doc) => {
+        emptyArray.push({ ...doc.data(), id: doc.id })
+    });
+    renderScreen()
+}
+getDataFromDb()
+
 // for render screen 
-function renderScreen(){
+function renderScreen() {
+    list.innerHTML = ''
     emptyArray.map((item, index) => {
-        console.log(item);
+        list.innerHTML += `
+        <li>${item.todo} - ${item.createdAt} <button class="delete">delete</button> <button class="edit">edit</button></li>`
+
+        let delete_Btn = document.querySelectorAll('.delete')
+        let edit_btn = document.querySelectorAll('.edit')
+
+        // delete button
+        delete_Btn.forEach((btn, index) => {
+            btn.addEventListener('click', async () => {
+                await deleteDoc(doc(db, "todos", emptyArray[index].id));
+                emptyArray.splice(index, 1)
+                renderScreen()
+            })
+        })
+
+        // edit button 
+        edit_btn.forEach((btn, index) => {
+            btn.addEventListener('click',async () => {
+                let ubdateTodo = prompt('enter new todo', emptyArray[index].todo)
+                const washingtonRef = doc(db, "todos", emptyArray[index].id);
+
+                await updateDoc(washingtonRef, {
+                    todo: ubdateTodo
+                });
+                emptyArray[index].todo = ubdateTodo
+                renderScreen()
+            })
+        })
     })
 }
 renderScreen()
 
 // get input value and store firestore database
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
     event.preventDefault()
-    
-    if(input.value === '') {
+    if (input.value === '') {
         alert('please fill input')
-    }else {
-        
+    } else {
+        try {
+            const docRef = await addDoc(collection(db, "todos"), {
+                todo: input.value,
+                createdAt: new Date().toISOString(),
+                cities: select.value,
+            });
+            emptyArray.push({
+                todo: input.value,
+                createdAt: new Date().toISOString(),
+                city: select.value,
+                id: docRef.id
+            })
+            renderScreen()
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
 
-        emptyArray.push({
-            todo: input.value,
-            createdAt: new Date().toISOString(),
-            city: select.value
-        })
-        renderScreen()
+        input.value = ''
     }
 })
 
