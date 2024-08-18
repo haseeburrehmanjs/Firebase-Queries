@@ -75,7 +75,9 @@ function renderScreen() {
                 await updateDoc(washingtonRef, {
                     todo: ubdateTodo
                 });
-                emptyArray[index].todo = ubdateTodo
+                if(ubdateTodo && ubdateTodo.trim() !== ''){
+                    emptyArray[index].todo = ubdateTodo
+                }
                 renderScreen()
             })
         })
